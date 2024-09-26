@@ -46,3 +46,5 @@ DONT GIVE ANY OUTPUT JUST REVIEW IT ## SDLC -> plan->Design->Develope->Test->Dep
             - /profile
       - PATCH
             - /profile
+
+## what is difference between the tilde(patches) and caret(latest)
