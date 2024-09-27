@@ -1,15 +1,20 @@
 import express from "express";
-import { authUser } from "./middleware/auth.js";
 
 const app = express();
 
-// app.use("/user", authUser);
-
-app.get("/user",authUser, (req, res) => {
-  res.send("user all data");
+app.get("/user", (req, res) => {
+  // using try catch
+  try {
+    throw new Error("sdfdgdfg");
+    res.send("user all data");
+  } catch (err) {
+    res.status(404).send("err is occured contact support team");
+  }
 });
-app.post("/user/login", (req, res) => {
-  res.send("Logininig");
+
+// error handling using wild card for all
+app.use("/", (err, req, res, next) => {
+  res.send("something is wrong");
 });
 
 app.listen(5000, () => {
