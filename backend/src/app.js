@@ -3,14 +3,11 @@ import dbConnect from "./config/database.js";
 import userModel from "./models/userSchema.js";
 
 const app = express();
+app.use(express.json());
 
 app.post("/signup", async (req, res) => {
-  const user = new userModel({
-    firstName: "Tushar",
-    lastName: "Shitole",
-    emailId: "tusharshitole@gmail.com",
-    password: "Secret@wsad",
-  });
+  console.log(req.body);
+  const user = new userModel(req.body);
 
   await user.save();
   res.send("Signup successFull");
