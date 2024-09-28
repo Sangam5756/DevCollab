@@ -7,6 +7,12 @@ app.use(express.json());
 
 app.post("/signup", async (req, res) => {
   console.log(req.body);
+
+  const isEmail = await userModel.find({ emailId: req.body.emailId });
+  if (isEmail) {
+    res.status(409).send("Email already exists");
+  }
+
   const user = new userModel(req.body);
 
   await user.save();
@@ -15,7 +21,7 @@ app.post("/signup", async (req, res) => {
 
 app.get("/user", async (req, res) => {
   try {
-    const user = await userModel.find({ emailId: req.body.emailId });
+    const user = await userModel.findOne({ emailId: req.body.emailId });
     if (user.length == 0) {
       res.status(404).send("user not found");
     } else {
@@ -27,12 +33,41 @@ app.get("/user", async (req, res) => {
 });
 
 app.get("/feed", async (req, res) => {
-  const user = await userModel.find({});
+  try {
+    const users = await userModel.find({});
 
-  res.send({
-    data: user,
-    success: true,
-  });
+    res.status(200).send({
+      data: users,
+      message: "All Users",
+      success: true,
+    });
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+app.delete("/profile", async (req, res) => {
+  try {
+    const user = await userModel.findByIdAndDelete(req.body.userId);
+
+    if (!user) {
+      res.send("User Not Found");
+    }
+
+    res.send("User deleted successfully");
+  } catch (error) {
+    res.send(error);
+  }
+}); 
+
+app.patch("/profile", async (req, res) => {
+  try {
+    const user = await userModel.findByIdAndUpdate(req.body.userId, req.body);
+    if (!user) {
+      res.send("Error");
+    }
+    res.send("Update success");
+  } catch (error) {}
 });
 
 dbConnect()
