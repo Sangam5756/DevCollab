@@ -6,6 +6,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 import validator from "validator";
+import { authUser } from "./middleware/auth.js";
 const app = express();
 const PORT = 5000;
 
@@ -50,10 +51,14 @@ app.post("/login", async (req, res) => {
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    const token = await jwt.sign({ _id: user._id }, "thisissecret");
-    console.log(token);
     if (isPasswordValid) {
-      res.cookie("token", token);
+      const token = await jwt.sign({ _id: user._id }, "thisissecret", {
+        expiresIn: "7d",
+      });
+
+      res.cookie("token", token, {
+        expires: new Date(Date.now() + 1 * 3600000),
+      });
       res.send("login successfull");
     } else {
       throw new Error("Invalid creadential");
@@ -63,87 +68,21 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/profile", async (req, res) => {
+app.get("/profile", authUser, async (req, res) => {
   try {
-    const cookies = req.cookies;
-    const { token } = cookies;
-    if(!token){
-      throw new Error("token not found");
-      
-    }
+    const user = req.user;
 
-    const jwtToken = await jwt.verify(token, "thisissecret");
-
-    if(!jwtToken){
-      throw new Error("Invalid token");
-      
-    }
-
-    const user = await userModel.findById(jwtToken?._id);
-    if (!user) {
-      throw new Error("User not exists");
-    }
     res.send(user);
   } catch (error) {
     res.status(400).send("ERROR:" + error.message);
   }
 });
 
-app.get("/user", async (req, res) => {
+app.post("/connection", authUser, (req, res) => {
   try {
-    const user = await userModel.findOne({ emailId: req.body.emailId });
-    if (user.length == 0) {
-      res.status(404).send("user not found");
-    } else {
-      res.status(200).send(user);
-    }
+    res.send("connection request sendby : " + req.user.firstName);
   } catch (error) {
-    res.status(400).send(error);
-  }
-});
-
-app.get("/feed", async (req, res) => {
-  try {
-    const users = await userModel.find({});
-
-    res.status(200).send({
-      data: users,
-      message: "All Users",
-      success: true,
-    });
-  } catch (error) {
-    res.status(400).send(error);
-  }
-});
-
-app.delete("/profile", async (req, res) => {
-  try {
-    const user = await userModel.findByIdAndDelete(req.body.userId);
-
-    if (!user) {
-      res.send("User Not Found");
-    }
-
-    res.send("User deleted successfully");
-  } catch (error) {
-    res.send(error);
-  }
-});
-
-app.patch("/profile/:userId", async (req, res) => {
-  const userId = req.params.userId;
-
-  try {
-    const user = await userModel.findByIdAndUpdate(userId, req.body, {
-      runValidators: true,
-    });
-    if (!user) {
-      res.send("Error");
-    } else {
-      res.send("Update success");
-    }
-  } catch (error) {
-    res.send(error.message);
+    res.status(400).send("ERROR:" + error.message);
   }
 });
 

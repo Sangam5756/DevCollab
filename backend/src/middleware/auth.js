@@ -1,13 +1,31 @@
+import jwt from "jsonwebtoken";
+import userModel from "../models/userSchema.js";
 
+export const authUser = async (req, res, next) => {
+  try {
+    const cookies = req.cookies;
+    const { token } = cookies;
 
-
-export const authUser = (req,res,next)=>{
-    console.log("checking user auth")
-    const token = "secret";
-    const isAuth = token === "secret";
-    if(!isAuth){
-        res.send("User is Unauthorized")
-    }else{
-        next()
+    if (!token) {
+      throw new Error("token not found");
     }
-}
+
+    const decodedObj = await jwt.verify(token, "thisissecret");
+
+    if (!decodedObj) {
+      throw new Error("Invalid token");
+    }
+
+    const { _id } = decodedObj;
+
+    const user = await userModel.findById(_id);
+    if (!user) {
+      throw new Error("User not exists");
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    res.status(400).send("ERROR:" + error.message);
+  }
+};
