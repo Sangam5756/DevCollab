@@ -3,20 +3,18 @@ import dbConnect from "./config/database.js";
 import userModel from "./models/userSchema.js";
 
 const app = express();
+const PORT  = 5000;
+
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {
-  console.log(req.body);
-
-  const isEmail = await userModel.find({ emailId: req.body.emailId });
-  if (isEmail) {
-    res.status(409).send("Email already exists");
+  try {
+    const user = new userModel(req.body);
+    await user.save();
+    res.send("Signup SUccessfull");
+  } catch (error) {
+    res.status(400).send(error.message);
   }
-
-  const user = new userModel(req.body);
-
-  await user.save();
-  res.send("Signup successFull");
 });
 
 app.get("/user", async (req, res) => {
@@ -58,24 +56,30 @@ app.delete("/profile", async (req, res) => {
   } catch (error) {
     res.send(error);
   }
-}); 
+});
 
-app.patch("/profile", async (req, res) => {
+app.patch("/profile/:userId", async (req, res) => {
+  const userId = req.params.userId;
+
   try {
-    const user = await userModel.findByIdAndUpdate(req.body.userId, req.body);
+    const user = await userModel.findByIdAndUpdate(userId, req.body, {
+      runValidators: true,
+    });
     if (!user) {
       res.send("Error");
+    } else {
+      res.send("Update success");
     }
-    res.send("Update success");
-  } catch (error) {}
+  } catch (error) {
+    res.send(error.message);
+  }
 });
 
 dbConnect()
   .then(() => {
-    console.log("Connected to db");
-
-    app.listen(5000, () => {
-      console.log("server is listening on port 5000");
+    console.log("DataBase connection established");
+    app.listen(PORT, () => {
+      console.log(`server is listening on port ${PORT}`)
     });
   })
   .catch((err) => console.error("Connection to database failed" + err));
