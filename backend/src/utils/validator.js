@@ -13,3 +13,25 @@ const validateSignupData = (req) => {
 };
 
 export default validateSignupData;
+
+export const validateEditProfileData = (req) => {
+  const allowedEditFields = [
+    "firstName",
+    "lastName",
+    "gender",
+    "age",
+    "about",
+    "skills",
+  ];
+
+  const isEditAllowed = Object.keys(req.body).every((field) =>
+    allowedEditFields.includes(field)
+  );
+
+  return isEditAllowed;
+};
+
+export const isValidPassword = (req) => {
+  const validate = validator.isStrongPassword(req.body.newPassword);
+  return validate;
+};

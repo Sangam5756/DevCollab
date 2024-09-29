@@ -29,22 +29,27 @@ DONT GIVE ANY OUTPUT JUST REVIEW IT ## SDLC -> plan->Design->Develope->Test->Dep
 
 - APi Design
 
-      - POST
-          -  /signup
-          -  /login
-          -  /profile
-          -  /send-Request => ignore/interested
-          -  /review-Request -> accept/reject
+  ### AuthROuter
 
-      - GET
-          - /profile
-          - /Request
-          - /connections
+      -    POST  /signup
+      -    POST  /login
+      -    POST  /profile
 
+  ### connectionRequestRouter
 
-      - DELETE
-            - /profile
-      - PATCH
-            - /profile
+  -     POST  =>  /request/send/interested/:userId      => interested
+  -     POST  =>  /request/send/ignore/:userId          => ignore
+  -     POST  =>  /request/review/accepted/:requestId   => accept
+  -     POST  =>  /request/review/rejected/:requestId   => reject
+
+  ### GET profileRouter
+
+      -  GET   /profile/view
+      -  PATCH /profile/edit
+      -  PATCH /profile/password
+
+  - GET - /user/requests/received
+  - GET - /user/connections
+  - GET - /user/feed -> get you the profiles of other user
 
 ## what is difference between the tilde(patches) and caret(latest)

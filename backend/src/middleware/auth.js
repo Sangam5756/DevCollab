@@ -7,10 +7,10 @@ export const authUser = async (req, res, next) => {
     const { token } = cookies;
 
     if (!token) {
-      throw new Error("token not found");
+      throw new Error("token not Valid");
     }
 
-    const decodedObj = await jwt.verify(token, "thisissecret");
+    const decodedObj = jwt.verify(token, "thisissecret");
 
     if (!decodedObj) {
       throw new Error("Invalid token");
