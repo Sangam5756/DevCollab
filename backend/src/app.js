@@ -1,19 +1,35 @@
 import express from "express";
 import dbConnect from "./config/database.js";
 import userModel from "./models/userSchema.js";
-
+import validateSignupData from "./utils/validator.js";
+import bcrypt from "bcrypt";
 const app = express();
-const PORT  = 5000;
+const PORT = 5000;
 
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {
   try {
-    const user = new userModel(req.body);
+    // validate req body
+    validateSignupData(req);
+
+    const { firstName, lastName, emailId, password } = req.body;
+
+    // password encryption
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const user = new userModel({
+      firstName,
+      lastName,
+      emailId,
+      password: passwordHash,
+    });
+
     await user.save();
-    res.send("Signup SUccessfull");
+
+    res.status(200).send("Signup SUccessfull");
   } catch (error) {
-    res.status(400).send(error.message);
+    res.status(400).send("ERROR:"+ error.message);
   }
 });
 
@@ -79,7 +95,7 @@ dbConnect()
   .then(() => {
     console.log("DataBase connection established");
     app.listen(PORT, () => {
-      console.log(`server is listening on port ${PORT}`)
+      console.log(`server is listening on port ${PORT}`);
     });
   })
   .catch((err) => console.error("Connection to database failed" + err));
