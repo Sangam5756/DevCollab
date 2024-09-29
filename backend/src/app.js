@@ -3,6 +3,7 @@ import dbConnect from "./config/database.js";
 import userModel from "./models/userSchema.js";
 import validateSignupData from "./utils/validator.js";
 import bcrypt from "bcrypt";
+import validator from "validator";
 const app = express();
 const PORT = 5000;
 
@@ -29,7 +30,31 @@ app.post("/signup", async (req, res) => {
 
     res.status(200).send("Signup SUccessfull");
   } catch (error) {
-    res.status(400).send("ERROR:"+ error.message);
+    res.status(400).send("ERROR:" + error.message);
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+    if (!validator.isEmail(emailId)) {
+      throw new Error("Invalid creadential");
+    }
+    const user = await userModel.findOne({ emailId: emailId });
+
+    if (!user) {
+      throw new Error("Invalid creadential");
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (isPasswordValid) {
+      res.send("login successfull");
+    } else {
+      throw new Error("Invalid creadential");
+    }
+  } catch (error) {
+    res.status(400).send("ERROR:" + error.message);
   }
 });
 
