@@ -3,11 +3,14 @@ import dbConnect from "./config/database.js";
 import userModel from "./models/userSchema.js";
 import validateSignupData from "./utils/validator.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import cookieParser from "cookie-parser";
 import validator from "validator";
 const app = express();
 const PORT = 5000;
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   try {
@@ -47,12 +50,40 @@ app.post("/login", async (req, res) => {
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-
+    const token = await jwt.sign({ _id: user._id }, "thisissecret");
+    console.log(token);
     if (isPasswordValid) {
+      res.cookie("token", token);
       res.send("login successfull");
     } else {
       throw new Error("Invalid creadential");
     }
+  } catch (error) {
+    res.status(400).send("ERROR:" + error.message);
+  }
+});
+
+app.get("/profile", async (req, res) => {
+  try {
+    const cookies = req.cookies;
+    const { token } = cookies;
+    if(!token){
+      throw new Error("token not found");
+      
+    }
+
+    const jwtToken = await jwt.verify(token, "thisissecret");
+
+    if(!jwtToken){
+      throw new Error("Invalid token");
+      
+    }
+
+    const user = await userModel.findById(jwtToken?._id);
+    if (!user) {
+      throw new Error("User not exists");
+    }
+    res.send(user);
   } catch (error) {
     res.status(400).send("ERROR:" + error.message);
   }
