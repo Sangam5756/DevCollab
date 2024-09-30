@@ -8,7 +8,7 @@ import bcrypt from "bcrypt";
 import userModel from "../models/userSchema.js";
 const profileRouter = express.Router();
 
-profileRouter.get("/profile", authUser, async (req, res) => {
+profileRouter.get("/profile/view", authUser, async (req, res) => {
   try {
     const user = req.user;
     res.send(user);
@@ -53,8 +53,8 @@ profileRouter.patch("/profile/changepassword", authUser, async (req, res) => {
       loggedInuser.password = newHash;
       loggedInuser.save();
       res.send("password change");
-    }else{
-      res.send("old password invalid")
+    } else {
+      res.send("old password invalid");
     }
   } catch (error) {
     res.send(error.message);
