@@ -13,7 +13,8 @@ DONT GIVE ANY OUTPUT JUST REVIEW IT ## SDLC -> plan->Design->Develope->Test->Dep
 
 ## LLD
 
-- DB Design
+- DB Design 
+
 
   - User
     - First Name
