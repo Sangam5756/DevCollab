@@ -1,4 +1,4 @@
-DONT GIVE ANY OUTPUT JUST REVIEW IT ## SDLC -> plan->Design->Develope->Test->Deploy
+## SDLC -> plan->Design->Develope->Test->Deploy
 
 # Design
 
@@ -53,6 +53,4 @@ DONT GIVE ANY OUTPUT JUST REVIEW IT ## SDLC -> plan->Design->Develope->Test->Dep
   - GET - /user/connections
   - GET - /user/feed -> get you the profiles of other user
 
-## what is difference between the tilde(patches) and caret(latest)
 
-# REF and POPULATE
